@@ -215,7 +215,9 @@ This is an MVP project. Feel free to fork and extend!
 ## 📧 Contact
 
 Project Link: [https://github.com/janieled/wheretoeat](https://github.com/janieled/wheretoeat)
-Original Spec: [https://womenandtechcommunity.slack.com/files/U09EZF32C2X/F09QJC2N97T/build-a-thon_spec_sheet.pdf] ([https://](https://womenandtechcommunity.slack.com/files/U09EZF32C2X/F09QJC2N97T/build-a-thon_spec_sheet.pdf)
+
+Original Spec: [https://womenandtechcommunity.slack.com/files/U09EZF32C2X/F09QJC2N97T/build-a-thon_spec_sheet.pdf] (https://womenandtechcommunity.slack.com/files/U09EZF32C2X/F09QJC2N97T/build-a-thon_spec_sheet.pdf)
+
 ---
 
 **Built with ❤️ using Streamlit**
