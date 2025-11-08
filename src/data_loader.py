@@ -46,6 +46,8 @@ class DataLoader:
             
         file_path = self.data_dir / "restaurants.csv"
         self.restaurants_df = pd.read_csv(file_path)
+
+        self.restaurants_df['vibes'] = self.restaurants_df['vibe'].fillna('').apply(lambda x: [v.strip() for v in x.split(';')] if x else [])
         return self.restaurants_df
     
     def load_users(self) -> pd.DataFrame:
