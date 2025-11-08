@@ -215,7 +215,7 @@ This is an MVP project. Feel free to fork and extend!
 ## 📧 Contact
 
 Project Link: [https://github.com/janieled/wheretoeat](https://github.com/janieled/wheretoeat)
-
+Original spec [https://github.com/janieled/wheretoeat] (https://github.com/janieled/wheretoeat)
 ---
 
 **Built with ❤️ using Streamlit**
