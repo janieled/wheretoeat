@@ -111,6 +111,7 @@ def save_user_preferences(user_data):
 
 def setup_page ():
     st.title("Restaurant Preferences Profile")
+    users = pd.read_csv("data/users.csv")
     
     # User Information
     st.header("Personal Details")
@@ -206,6 +207,8 @@ def setup_page ():
         if save_user_preferences(user_data):
             st.success(f"Profile created successfully! Your User ID is {user_id}")
             
+            users = pd.read_csv("data/users.csv")
+
             # Optional: Show the entered data
             st.write("Your Profile:")
             st.table(pd.DataFrame([user_data]))
