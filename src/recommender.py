@@ -96,8 +96,21 @@ class RestaurantRecommender:
                 filtered = filtered[filtered['glutenfree_options'] == 'Yes']
             elif 'dairy' in allergy or 'lactose' in allergy:
                 filtered = filtered[filtered['lactosefree_options'] == 'Yes']
+
+        # filter restaurants by selected time if provided
         
-        # TODO: Add time-based filtering if needed (e.g., breakfast/lunch/dinner hours)
-        # For now, time is just captured but not used for filtering
+        if selected_time:
+            def time_match(row):
+                if not row['opening_hours'] or not row['closing_hours']:
+                    return False
+                opening = dt_time.fromisoformat(row['opening_hours'])
+                closing = dt_time.fromisoformat(row['closing_hours'])
+                if opening <= closing:
+                    return opening <= selected_time <= closing
+                else:  # Handles overnight hours (e.g., 10 PM to 2 AM)
+                    return selected_time >= opening or selected_time <= closing
+            
+            filtered = filtered[filtered.apply(time_match, axis=1)]
+
         
         return filtered.head(n)
