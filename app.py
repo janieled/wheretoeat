@@ -7,10 +7,12 @@ Mobile-first responsive design.
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import csv
+from datetime import datetime
+import os
 import plotly.graph_objects as go
 from src.data_loader import DataLoader
 from src.recommender import RestaurantRecommender
-
 
 # Page configuration
 st.set_page_config(
@@ -20,6 +22,105 @@ st.set_page_config(
     initial_sidebar_state="collapsed"  # Collapsed by default for mobile
 )
 
+def load_users_csv():
+    """Load existing users data or create a new CSV if it doesn't exist."""
+    if not os.path.exists('users.csv'):
+        # Create the CSV with headers if it doesn't exist
+        with open('users.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['user_id', 'username', 'phonenumber', 'joined_date', 
+                             'allergies', 'alcohol', 'vegetarian', 'vegan', 'friend'])
+    
+    return pd.read_csv('users.csv')
+
+ def save_user_preferences(user_data):
+    """Save user preferences to CSV."""
+    # Load existing users
+    df = load_users_csv()
+    
+    # Check if username already exists
+    if user_data['username'] in df['username'].values:
+        st.error("Username already exists. Please choose a different username.")
+        return False
+    
+    # Append new user
+    with open('users.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(user_data.values())
+    
+    return True
+
+def setup_page    
+():
+    st.title("Restaurant Preferences Profile")
+    
+    # User Information
+    st.header("Personal Details")
+    username = st.text_input("Username")
+    phone_number = st.text_input("Phone Number", help="Format: XXX-XXXX")
+    
+    # Dietary Preferences
+    st.header("Dietary Preferences")
+    
+    # Allergies
+    allergies = st.multiselect(
+        "Select any food allergies", 
+        [
+            "None", "Peanuts", "Gluten", "Shellfish", 
+            "Dairy", "Eggs", "Soy", "Tree Nuts"
+        ]
+    )
+    
+    # Alcohol Preference
+    alcohol_preference = st.radio(
+        "Do you consume alcohol?", 
+        ["Yes", "No"]
+    )
+    
+    # Dietary Restrictions
+    vegetarian = st.checkbox("Vegetarian")
+    vegan = st.checkbox("Vegan")
+    
+    # Friends Usernames
+    st.header("Social Connections")
+    friend_usernames = st.text_input(
+        "Friend Usernames", 
+        help="Enter friend usernames separated by semicolon (;)"
+    )
+    
+    # Submit Button
+    if st.button("Create Profile"):
+        # Validate inputs
+        if not username or not phone_number:
+            st.error("Username and Phone Number are required!")
+            return
+        
+        # Prepare user data
+        users_df = load_users_csv()
+        user_id = get_next_user_id(users_df)
+        
+        user_data = {
+            'user_id': user_id,
+            'username': username,
+            'phonenumber': phone_number,
+            'joined_date': datetime.now().strftime('%Y-%m-%d'),
+            'allergies': ';'.join(allergies) if allergies else 'None',
+            'alcohol': alcohol_preference,
+            'vegetarian': 'yes' if vegetarian else 'no',
+            'vegan': 'yes' if vegan else 'no',
+            'friend': friend_usernames or ''
+        }
+        
+        # Attempt to save user data
+        if save_user_preferences(user_data):
+            st.success(f"Profile created successfully! Your User ID is {user_id}")
+            
+            # Optional: Show the entered data
+            st.write("Your Profile:")
+            st.table(pd.DataFrame([user_data]))
+
+if __name__ == '__setup_page':
+    setup_page ()
 
 # Mobile-first CSS styling
 def inject_mobile_css():
