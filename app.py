@@ -63,7 +63,7 @@ def save_user_preferences(user_data):
         return False
     
     # Append new user
-    with open('users.csv', 'a', newline='') as file:
+    with open('data/users.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(user_data.values())
     
@@ -73,13 +73,13 @@ def save_user_preferences(user_data):
 
 def load_users_csv():
     "Load existing users data or create a new CSV if it doesn’t exist."
-    if not os.path.exists('users.csv'):
+    if not os.path.exists('data/users.csv'):
         # Create the CSV with headers if it doesn’t exist
-        with open('users.csv', 'w', newline='') as file:
+        with open('data/users.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['user_id', 'username', 'phonenumber', 'joined_date',
                              'allergies', 'alcohol', 'vegetarian', 'vegan', 'friend'])
-    return pd.read_csv('users.csv')
+    return pd.read_csv('data/users.csv')
 
 def get_next_user_id(df):
     "Generate the next user ID."
@@ -96,9 +96,13 @@ def save_user_preferences(user_data):
         return False
     
     # Append new user
-    with open('users.csv', 'a', newline='') as file:
+    with open('data/users.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(user_data.values())
+    
+    # Update global users DataFrame
+    global users
+    users = pd.read_csv('data/users.csv')
     
     return True
 
