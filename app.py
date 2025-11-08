@@ -249,11 +249,7 @@ def display_restaurant_card(restaurant, show_predicted_rating=False):
         with col1:
             st.write(f"**{restaurant['cuisine']}** • {restaurant['location']}")
             st.write(f"💰 {restaurant['price_range']}")
-            
-        with col2:
-            st.metric("⭐ Rating", f"{restaurant['avg_rating']:.1f}")
-            st.caption(f"{restaurant['num_reviews']} reviews")
-        
+                    
         # Show predicted rating if available
         if show_predicted_rating:
             if 'predicted_rating' in restaurant:
@@ -278,12 +274,8 @@ def show_home_page(loader, recommender):
     
     with row1_col1:
         st.metric("🍽️ Restaurants", stats['total_restaurants'])
-    with row1_col2:
-        st.metric("📝 Reviews", stats['total_reviews'])
     with row2_col1:
         st.metric("👥 Users", stats['total_users'])
-    with row2_col2:
-        st.metric("⭐ Avg Rating", f"{stats['avg_rating_overall']:.2f}")
     
     st.markdown("---")
     
@@ -291,15 +283,9 @@ def show_home_page(loader, recommender):
     st.subheader("🌟 Top Rated Restaurants")
     
     # Stack controls vertically on mobile for better UX
-    min_reviews = st.slider("Minimum Reviews", 0, 100, 50, 10, 
-                           help="Filter by minimum number of reviews")
     n_restaurants = st.slider("Number of Restaurants", 5, 20, 10,
                              help="How many restaurants to show")
     
-    top_restaurants = recommender.recommend_by_average_rating(
-        n=n_restaurants,
-        min_reviews=min_reviews
-    )
     
     for _, restaurant in top_restaurants.iterrows():
         display_restaurant_card(restaurant)
@@ -308,7 +294,7 @@ def show_home_page(loader, recommender):
     st.markdown("---")
     st.subheader("📊 Dataset Insights")
     
-    # Cuisine distribution
+    # Cuisine distributionS
     restaurants_df = loader.load_restaurants()
     cuisine_counts = restaurants_df['cuisine'].value_counts()
     fig_cuisine = px.pie(
@@ -538,31 +524,119 @@ def main():
     # Sidebar navigation - optimized for mobile
     with st.sidebar:
         st.title("🍽️ WhereToEat")
-        
-        # Shorter navigation labels for mobile
         page = st.radio(
             "Navigate",
-            ["🏠 Home", "👤 For You", "🔍 Search", "🏪 Details"],
+            ["🏠 Home", "� For You/Group", "🔍 Search", "🏪 Details"],
             label_visibility="collapsed"
         )
-        
         st.markdown("---")
-        
         with st.expander("ℹ️ About"):
             st.write(
                 "WhereToEat helps you discover great restaurants using "
                 "collaborative filtering and ML recommendations."
             )
-    
+
     # Display selected page
     if page == "🏠 Home":
         show_home_page(loader, recommender)
-    elif page == "👤 For You":
-        show_personalized_recommendations(loader, recommender)
+    elif page == "� For You/Group":
+        show_combined_recommendation(loader, recommender)
     elif page == "🔍 Search":
         show_search_filter_page(loader, recommender)
     elif page == "🏪 Details":
         show_restaurant_details(loader, recommender)
+
+
+
+# Combined: For You / Group Recommendation Page
+def show_combined_recommendation(loader, recommender):
+    st.title("👥 For You / Group Recommendation")
+    st.markdown("Get recommendations for yourself or with friends!")
+
+    users_df = loader.load_users()
+    user_options = users_df[['user_id', 'username']].apply(lambda row: f"{row['username']} (ID: {row['user_id']})", axis=1).tolist()
+    selected_user = st.selectbox("Who is going?", user_options, help="Select yourself")
+
+    # Option to add friends
+    add_friends = st.checkbox("Add friends?", value=False)
+    selected_friends = []
+    if add_friends:
+        friend_options = [u for u in user_options if u != selected_user]
+        selected_friends = st.multiselect("What friends are coming with you?", friend_options, help="Select your friends")
+
+    # Vibe selection
+    restaurants_df = loader.load_restaurants()
+    # Extract all unique vibes (split by semicolon)
+    all_vibes = set()
+    for vlist in restaurants_df['vibe'].dropna():
+        for v in vlist.split(';'):
+            all_vibes.add(v.strip())
+    vibes = sorted(all_vibes)
+    selected_vibes = st.multiselect("What's the vibe?", vibes, help="Choose one or more vibes for your outing")
+
+    # Date/time selection
+    selected_date = st.date_input("Date", help="Pick a date")
+    selected_time = st.time_input("Time", help="Pick a time")
+
+    st.markdown("---")
+    st.write(f"**User:** {selected_user}")
+    st.write(f"**Friends:** {', '.join(selected_friends) if selected_friends else 'None selected'}")
+    st.write(f"**Vibe(s):** {', '.join(selected_vibes) if selected_vibes else 'None selected'}")
+    st.write(f"**Date/Time:** {selected_date} {selected_time}")
+
+    if st.button("Show Recommendations"):
+        # Parse user_id from selected_user string
+        user_id = int(selected_user.split("ID: ")[-1].replace(")", ""))
+        friend_ids = [int(f.split("ID: ")[-1].replace(")", "")) for f in selected_friends]
+
+        if not add_friends or not selected_friends:
+            st.subheader("🎯 Recommended for You")
+            n_recommendations = st.slider("Number of Recommendations", 5, 20, 10, help="How many recommendations to generate")
+            recommendation_method = st.selectbox(
+                "Recommendation Method",
+                ["Hybrid", "User-based CF", "Item-based CF"],
+                help="Hybrid combines multiple recommendation techniques"
+            )
+            with st.spinner("Generating recommendations..."):
+                if recommendation_method == "User-based CF":
+                    recommendations = recommender.recommend_collaborative_user_based(
+                        user_id=user_id,
+                        n=n_recommendations
+                    )
+                elif recommendation_method == "Item-based CF":
+                    recommendations = recommender.recommend_collabosrative_item_based(
+                        user_id=user_id,
+                        n=n_recommendations
+                    )
+                else:  # Hybrid
+                    recommendations = recommender.recommend_hybrid(
+                        user_id=user_id,
+                        n=n_recommendations
+                    )
+            if len(recommendations) > 0:
+                for _, restaurant in recommendations.iterrows():
+                    display_restaurant_card(restaurant, show_predicted_rating=True)
+            else:
+                st.warning("No recommendations available. Try a different method!")
+        else:
+            st.subheader("🎯 Group Recommendations")
+            n_recommendations = st.slider("Number of Group Recommendations", 5, 20, 10, help="How many group recommendations to generate")
+            restaurants_df = loader.load_restaurants()
+            if selected_vibes:
+                # Match if any selected vibe is present in the restaurant's vibe list
+                def vibe_match(row):
+                    if pd.isna(row['vibe']):
+                        return False
+                    vibes_in_row = [v.strip() for v in row['vibe'].split(';')]
+                    return any(v in vibes_in_row for v in selected_vibes)
+                group_recs = restaurants_df[restaurants_df.apply(vibe_match, axis=1)].head(n_recommendations)
+            else:
+                group_recs = restaurants_df.head(0)
+            if len(group_recs) > 0:
+                for _, restaurant in group_recs.iterrows():
+                    display_restaurant_card(restaurant)
+            else:
+                st.warning("No group recommendations available for the selected vibe(s).")
 
     if st.button("Logout"):
         st.session_state.logged_in = False

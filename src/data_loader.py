@@ -59,13 +59,16 @@ class DataLoader:
         return self.users_df
     
     def load_history(self) -> pd.DataFrame:
-        """Load user history data from CSV."""
+        """Load user history data from CSV and convert ratings to numeric."""
         if self.history_df is not None:
             return self.history_df
 
         file_path = self.data_dir / "user_history.csv"
         self.history_df = pd.read_csv(file_path)
         self.history_df['visit_date'] = pd.to_datetime(self.history_df['visit_date'])
+        # Convert ratings to numeric: yes=5, meh=3, no/None=1
+        rating_map = {'yes': 5, 'meh': 3, 'no': 1, 'None': 1, None: 1}
+        self.history_df['rating'] = self.history_df['rating'].map(rating_map).fillna(1).astype(int)
         return self.history_df
     
     def get_restaurant_by_id(self, restaurant_id: int) -> Optional[pd.Series]:
@@ -213,20 +216,20 @@ class DataLoader:
         """
         Create user-item matrix for collaborative filtering.
         Rows are users, columns are restaurants, values are ratings.
+        Only numeric ratings are used.
         
         Returns:
             DataFrame with users as rows and restaurants as columns
         """
         if self.history_df is None:
-            self.load_reviews()
-        
-        # Create pivot table
+            self.load_history()
+        # Only use numeric ratings
         user_item_matrix = self.history_df.pivot_table(
             index='user_id',
             columns='restaurant_id',
+            values='rating',
             fill_value=0
         )
-        
         return user_item_matrix
     
     def get_statistics(self) -> dict:
