@@ -132,9 +132,16 @@ def setup_page ():
         ["Yes", "No"]
     )
     
-    # Dietary Restrictions
-    vegetarian = st.checkbox("Vegetarian")
-    vegan = st.checkbox("Vegan")
+    # # Dietary Restrictions
+    # vegetarian = st.checkbox("Vegetarian")
+    # vegan = st.checkbox("Vegan")
+    # Allergies
+    dietary_restrictions = st.multiselect(
+        "Select any dietary restrictions", 
+        [
+            "Vegetarian", "Vegan", "Pescatarian", "Kosher", "Halal"
+        ]
+    )
     
     # Friends Usernames
     st.header("Social Connections")
@@ -160,8 +167,7 @@ def setup_page ():
             'joined_date': datetime.now().strftime('%Y-%m-%d'),
             'allergies': ';'.join(allergies) if allergies else 'None',
             'alcohol': alcohol_preference,
-            'vegetarian': 'yes' if vegetarian else 'no',
-            'vegan': 'yes' if vegan else 'no',
+            'dietary_restriction': ';'.join(dietary_restrictions) if dietary_restrictions else 'None',
             'friend': friend_usernames or ''
         }
         
