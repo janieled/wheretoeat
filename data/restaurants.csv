@@ -1,0 +1,21 @@
+restaurant_id,name,cuisine,location,price_range,avg_rating,num_reviews
+1,The Golden Spoon,Italian,Downtown,$$,4.5,120
+2,Sushi Paradise,Japanese,Midtown,$$,4.7,98
+3,Burger Haven,American,Eastside,$$,4.2,156
+4,Spice Garden,Indian,Downtown,$$$,4.6,87
+5,Taco Fiesta,Mexican,Westside,$,4.3,203
+6,Le Petit Bistro,French,Downtown,$$$$,4.8,65
+7,Dragon Wok,Chinese,Midtown,$$,4.4,142
+8,Mediterranean Breeze,Mediterranean,Eastside,$$$,4.5,78
+9,BBQ Smokehouse,BBQ,Westside,$$,4.6,134
+10,Vegan Delight,Vegan,Downtown,$$,4.1,92
+11,Seafood Shack,Seafood,Waterfront,$$$,4.7,110
+12,Pizza Palace,Italian,Eastside,$,4.4,187
+13,Thai Orchid,Thai,Midtown,$$,4.5,105
+14,Steakhouse Prime,Steakhouse,Downtown,$$$$,4.9,89
+15,Ramen House,Japanese,Eastside,$,4.3,176
+16,Greek Taverna,Greek,Westside,$$,4.4,95
+17,Pho Kitchen,Vietnamese,Midtown,$,4.6,162
+18,Tapas Bar,Spanish,Downtown,$$$,4.5,73
+19,Soul Food Kitchen,Soul Food,Westside,$$,4.7,88
+20,Farm to Table,American,Downtown,$$$,4.8,102
