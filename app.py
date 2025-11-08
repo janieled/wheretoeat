@@ -20,6 +20,58 @@ st.set_page_config(
     initial_sidebar_state="collapsed"  # Collapsed by default for mobile
 )
 
+users = pd.read_csv("data/users.csv")
+
+# --- Session setup ---
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "number" not in st.session_state:
+    st.session_state.number = None
+if "page" not in st.session_state:
+    st.session_state.page = "login" 
+
+# --- Login page ---
+def login_page():
+    st.title("📱 Login")
+
+    number = st.text_input("Phone Number")
+
+    if st.button("Login"):
+        user_row = users[users["phonenumber"].astype(str) == number]
+
+        if user_row.empty:
+            st.warning("Number not found. Let's set up your account.")
+            st.session_state.page = "setup"
+            st.session_state.number = number
+            st.rerun()
+        else:
+            # validate password
+            st.session_state.logged_in = True
+            st.session_state.number = number
+            st.session_state.page = "main"
+            st.rerun()
+
+# --- Setup page ---
+def setup_page():
+    st.title("🪄 Account Setup")
+
+    name = st.text_input("Your Name")
+    password = st.text_input("Create Password", type="password")
+
+    if st.button("Save and Continue"):
+        new_user = pd.DataFrame({
+            "number": [st.session_state.number],
+            "password": [password],
+            "name": [name],
+            "role": ["user"]
+        })
+        # append to CSV
+        new_user.to_csv("users.csv", mode="a", header=False, index=False)
+        st.success("Account created successfully! Please log in.")
+        st.session_state.page = "login"
+        st.experimental_rerun()
+
+
 
 # Mobile-first CSS styling
 def inject_mobile_css():
@@ -512,6 +564,17 @@ def main():
     elif page == "🏪 Details":
         show_restaurant_details(loader, recommender)
 
+    if st.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
 
-if __name__ == "__main__":
+
+
+
+# if __name__ == "__main__":
+#     main()
+
+if not st.session_state.logged_in:
+    login_page()
+else:
     main()
