@@ -57,23 +57,6 @@ def login_page():
             st.rerun()
 
 
-def save_user_preferences(user_data):
-    """Save user preferences to CSV."""
-    
-    # Check if username already exists
-    if user_data['username'] in df['username'].values:
-        st.error("Username already exists. Please choose a different username.")
-        return False
-    
-    # Append new user
-    with open('data/users.csv', 'a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(user_data.values())
-    
-    return True
-
-    
-
 def load_users_csv():
     "Load existing users data or create a new CSV if it doesn’t exist."
     if not os.path.exists('data/users.csv'):
@@ -110,6 +93,7 @@ def save_user_preferences(user_data):
     return True
 
 def setup_page ():
+    global users
     st.title("Restaurant Preferences Profile")
     users = pd.read_csv("data/users.csv")
     
@@ -206,7 +190,11 @@ def setup_page ():
         # Attempt to save user data
         if save_user_preferences(user_data):
             st.success(f"Profile created successfully! Your User ID is {user_id}")
+
+            # reload data - clear cache to force reload
+            st.cache_resource.clear()
             
+            # Update global users variable
             users = pd.read_csv("data/users.csv")
 
             # Optional: Show the entered data
