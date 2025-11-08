@@ -1,2 +1,3 @@
 user_id,username,phonenumber,joined_date,allergies,alcohol,vegetarian,vegan,friend
 20,Bob_marley,111-0004,2025-11-08,Peanuts;Shellfish,Yes,no,yes,5;8
+20,Rob,123-0001,2025-11-08,Peanuts;Dairy,Yes,yes,no,5;8
