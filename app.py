@@ -58,18 +58,18 @@ def setup_page():
     name = st.text_input("Your Name")
     password = st.text_input("Create Password", type="password")
 
-    if st.button("Save and Continue"):
-        new_user = pd.DataFrame({
-            "number": [st.session_state.number],
-            "password": [password],
-            "name": [name],
-            "role": ["user"]
-        })
-        # append to CSV
-        new_user.to_csv("users.csv", mode="a", header=False, index=False)
-        st.success("Account created successfully! Please log in.")
-        st.session_state.page = "login"
-        st.experimental_rerun()
+    # if st.button("Save and Continue"):
+    #     new_user = pd.DataFrame({
+    #         "number": [st.session_state.number],
+    #         "password": [password],
+    #         "name": [name],
+    #         "role": ["user"]
+    #     })
+    #     # append to CSV
+    #     new_user.to_csv("users.csv", mode="a", header=False, index=False)
+    #     st.success("Account created successfully! Please log in.")
+    st.session_state.page = "login"
+    st.rerun()
 
 
 

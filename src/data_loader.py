@@ -55,7 +55,7 @@ class DataLoader:
             
         file_path = self.data_dir / "users.csv"
         self.users_df = pd.read_csv(file_path)
-        self.users_df['joined_date'] = pd.to_datetime(self.users_df['joined_date'])
+        self.users_df['join_date'] = pd.to_datetime(self.users_df['join_date'])
         return self.users_df
     
     def load_history(self) -> pd.DataFrame:
