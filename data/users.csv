@@ -1,4 +1,4 @@
-user_id,username,phonenumber,joined_date,allgergies,alcohol,vegetarian,vegan,friend
+user_id,username,phonenumber,join_date,allgergies,alcohol,vegetarian,vegan,friend
 2,john_eats,555-0002,2023-02-20,peanuts,yes,no,no,6;5
 3,maria_gourmet,555-0003,2023-03-10,gluten,yes,no,no,4;7
 4,chef_bob,555-0004,2023-01-05,shellfish,yes,no,no,3;10
