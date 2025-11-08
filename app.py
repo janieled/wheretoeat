@@ -150,6 +150,34 @@ def setup_page ():
         "Friend Usernames", 
         help="Enter friend usernames separated by semicolon (;)"
     )
+
+    # Validate and convert friend usernames to user IDs
+    friend_ids = ''
+    if friend_usernames:
+        # Split usernames and strip whitespace
+        username_list = [fusername.strip() for fusername in friend_usernames.split(';') if fusername.strip()]
+        
+        # Find corresponding user IDs
+        found_friend_ids = []
+        invalid_usernames = []
+        
+        for fusername in username_list:
+            # Find the user ID for this username
+            matching_users = users[users['username'] == fusername]
+            
+            if not matching_users.empty:
+                # Get the user ID of the matching user
+                friend_id = matching_users['user_id'].iloc[0]
+                found_friend_ids.append(str(friend_id))
+            else:
+                invalid_usernames.append(fusername)
+        
+        # Provide feedback about invalid usernames
+        if invalid_usernames:
+            st.warning(f"The following usernames were not found: {', '.join(invalid_usernames)}")
+        
+        # Convert friend IDs to semicolon-separated string
+        friend_ids = ';'.join(found_friend_ids) if found_friend_ids else ''
     
     # Submit Button
     if st.button("Create Profile"):
@@ -169,7 +197,7 @@ def setup_page ():
             'allergies': ';'.join(allergies) if allergies else 'None',
             'alcohol': alcohol_preference,
             'dietary_restriction': ';'.join(dietary_restrictions) if dietary_restrictions else 'None',
-            'friend': friend_usernames or ''
+            'friend': friend_ids or ''
         }
         
         # Attempt to save user data
@@ -179,6 +207,11 @@ def setup_page ():
             # Optional: Show the entered data
             st.write("Your Profile:")
             st.table(pd.DataFrame([user_data]))
+            
+            st.session_state.logged_in = True
+            st.session_state.page = "main"
+            st.rerun()
+
 
 if __name__ == '__setup_page':
     setup_page ()
@@ -453,13 +486,11 @@ def show_combined_recommendation(loader, recommender):
 
     if st.button("Logout"):
         st.session_state.logged_in = False
+        st.session_state.page = "login"
         st.rerun()
 
 
 
-
-# if __name__ == "__main__":
-#     main()
 
 if not st.session_state.logged_in:
     if st.session_state.page == "login":

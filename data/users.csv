@@ -19,3 +19,8 @@ user_id,username,phonenumber,join_date,allgergies,alcohol,dietary_restrictions,f
 19,linda_table,555-0019,2023-01-12,fish,yes,Halal,18;16
 20,Bob_marley,111-0004,2025-11-08,Dairy;Shellfish,Vegetarian;Vegan,no,5;6
 21,Rin,1234-009,2025-11-08,Peanuts;Gluten;Shellfish,Yes,Kosher;Vegan,3;9
+22,Noms_foodie,999-0009,2025-11-08,Peanuts;Shellfish;Eggs;Tree Nuts,Yes,Vegan,2;3
+23,quesadilla,125-9876,2025-11-08,Peanuts;Shellfish,Yes,Vegan,22;21
+24,Jill,777-3645,2025-11-08,Peanuts,Yes,Kosher,21
+25,LOL,123-0987,2025-11-08,Peanuts,Yes,Kosher,21
+26,LOLZ,124-9976,2025-11-08,Peanuts,Yes,Pescatarian,21
