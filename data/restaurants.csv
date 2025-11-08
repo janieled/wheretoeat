@@ -1,21 +1,23 @@
-restaurant_id,name,cuisine,location,price_range,avg_rating,num_reviews
-1,The Golden Spoon,Italian,Downtown,$$,4.5,120
-2,Sushi Paradise,Japanese,Midtown,$$,4.7,98
-3,Burger Haven,American,Eastside,$$,4.2,156
-4,Spice Garden,Indian,Downtown,$$$,4.6,87
-5,Taco Fiesta,Mexican,Westside,$,4.3,203
-6,Le Petit Bistro,French,Downtown,$$$$,4.8,65
-7,Dragon Wok,Chinese,Midtown,$$,4.4,142
-8,Mediterranean Breeze,Mediterranean,Eastside,$$$,4.5,78
-9,BBQ Smokehouse,BBQ,Westside,$$,4.6,134
-10,Vegan Delight,Vegan,Downtown,$$,4.1,92
-11,Seafood Shack,Seafood,Waterfront,$$$,4.7,110
-12,Pizza Palace,Italian,Eastside,$,4.4,187
-13,Thai Orchid,Thai,Midtown,$$,4.5,105
-14,Steakhouse Prime,Steakhouse,Downtown,$$$$,4.9,89
-15,Ramen House,Japanese,Eastside,$,4.3,176
-16,Greek Taverna,Greek,Westside,$$,4.4,95
-17,Pho Kitchen,Vietnamese,Midtown,$,4.6,162
-18,Tapas Bar,Spanish,Downtown,$$$,4.5,73
-19,Soul Food Kitchen,Soul Food,Westside,$$,4.7,88
-20,Farm to Table,American,Downtown,$$$,4.8,102
+estaurant_id,name,cuisine,location,price_range,vibe,kid_friendly,dog_friendly,outdoor_sitting,happy_hour,Monday_opening,Monday_closing,Tuesday_opening,Tuesday_closing,Wednesday_opening,Wednesday_closing,Thursday_opening,Thursday_closing,Friday_opening,Friday_closing,Saturday_opening,Saturday_closing,Sunday_opening,Sunday_closing
+1,The Golden Spoon,Italian,Downtown,$$$,Fine Dining;Date,No,No,No,No,15,22,15,22,15,22,15,22,15,23,15,23,15,23
+2,Sushi Paradise,Japanese,RiNo,$$,Modern;Date,Yes,Yes,Yes,Yes,12,21,12,21,12,21,12,22,12,22,12,22,12,22
+3,Burger Haven,American,Arvada,$$,Casual;Fast Food;Drinks,Yes,Yes,Yes,No,14,21,14,20,14,20,14,20,14,20,12,20,12,20
+4,Spice Garden,Indian,Downtown,$$$,Fine Dining;Date;Business,Yes,No,No,No,14,22,14,22,14,22,14,22,14,22,12,22,12,22
+5,Taco Fiesta,Mexican,Capitol Hill,$,Casual;Fast Food,Yes,No,No,Yes,12,21,12,21,12,21,12,21,12,21,12,21,12,21
+6,Le Petit Bistro,French,Lakewood,$$$$,Fine Dining;Date;Coffee,Yes,No,No,No,12,20,12,20,12,20,10,20,10,20,10,22,10,22
+7,Dragon Wok,Chinese,RiNo,$$,Casual,Yes,No,No,Yes,12,22,12,22,12,22,12,22,12,22,12,22,12,22
+8,Mediterranean Breeze,Mediterranean,LoHi,$$$,Cozy;Family,Yes,No,No,Yes,15,20,15,20,15,20,15,20,15,20,15,21,15,21
+9,BBQ Smokehouse,BBQ,LoHi,$$,Casual;Drinks,Yes,Yes,Yes,No,16,23,16,23,16,23,16,23,16,23,16,23,16,23
+10,Vegan Delight,Vegan,Downtown,$$,Casual;Family;Coffee,Yes,Yes,Yes,Yes,14,20,14,20,14,20,14,20,14,20,14,22,14,22
+11,Seafood Shack,Seafood,Lakewood,$$$,Fine Dining;Date;Business,No,No,No,No,16,21,16,21,16,21,16,21,16,22,16,22,16,22
+12,Pizza Palace,Italian,Arvada,$,Casual;Drinks,Yes,Yes,Yes,Yes,15,23,15,23,15,23,15,23,15,23,15,23,15,23
+13,Thai Orchid,Thai,Capitol Hill,$$,Casual;Family;Coffee,Yes,No,No,Yes,15,23,15,23,15,23,15,23,15,23,15,23,15,23
+14,Steakhouse Prime,Steakhouse,Downtown,$$$$,Fine Dining;Drinks,No,No,No,No,17,22,17,22,15,22,15,22,15,22,15,22,15,22
+15,Ramen House,Japanese,Aurora,$,Cozy,Yes,Yes,Yes,No,15,20,15,20,15,20,15,20,15,21,15,21,15,21
+16,Greek Taverna,Greek,Aurora,$$,Cozy;Date,Yes,No,Yes,Yes,16,21,16,21,16,21,16,21,16,21,16,23,16,23
+17,Pho Kitchen,Vietnamese,Westminster,$,Cozy;Date,Yes,No,No,Yes,14,22,14,22,14,22,14,22,14,22,14,22,14,22
+18,Tapas Bar,Spanish,Downtown,$,Casual;Drinks,Yes,No,Yes,Yes,16,22,16,24,16,24,16,24,16,24,16,24,16,24
+19,Soul Food Kitchen,Soul Food,Westminster,$$,Cozy;Family,Yes,No,No,No,14,21,14,21,14,21,14,21,14,22,14,22,14,22
+20,Farm to Table,American,Downtown,$$$,Modern;Date,No,No,No,No,12,22,12,22,12,22,12,22,12,22,12,22,12,22
+21,Breakfast Paradise,Breakfast,LoHi,$,Breakfast;Coffee,Yes,Yes,Yes,No,7,14,7,14,7,14,7,14,7,14,7,14,7,14
+22,Good Morning Beautiful,Breakfast,RiNo,$,Breakfast;Coffee,Yes,Yes,Yes,No,7,15,7,15,10,15,7,15,7,15,7,15,7,15
