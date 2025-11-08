@@ -1,19 +1,19 @@
 user_id,username,phonenumber,joined_date,allgergies,alcohol,vegetarian,vegan,friend
-2,john_eats,555-0002,2023-02-20,peanuts,yes,no,no,mike_meals;sarah_tasty
-3,maria_gourmet,555-0003,2023-03-10,gluten,yes,no,no,chef_bob;lisa_food
-4,chef_bob,555-0004,2023-01-05,shellfish,yes,no,no,maria_gourmet;david_cuisine
-5,sarah_tasty,555-0005,2023-04-12,none,no,no,no,lisa_food;john_eats
-6,mike_meals,555-0006,2023-02-28,dairy,yes,no,no,john_eats;emily_bites
-7,lisa_food,555-0007,2023-03-22,soy,yes,no,no,sarah_tasty;maria_gourmet
-8,tom_diner,555-0008,2023-05-01,tree nuts,yes,no,no,emily_bites;kevin_taste
-9,emily_bites,555-0009,2023-01-30,fish,yes,no,no,tom_diner;mike_meals
-10,david_cuisine,555-0010,2023-04-08,eggs,yes,no,no,rachel_eats;chef_bob
-11,rachel_eats,555-0011,2023-02-14,none,no,no,no,david_cuisine;anna_dish
-12,kevin_taste,555-0012,2023-03-18,peanuts,yes,no,no,sophia_flavors;tom_diner
-13,sophia_flavors,555-0013,2023-05-10,gluten,yes,no,no,kevin_taste;james_fork
-14,james_fork,555-0014,2023-01-20,shellfish,yes,no,no,anna_dish;sophia_flavors
-15,anna_dish,555-0015,2023-04-25,none,no,no,no,james_fork;rachel_eats
-16,robert_plate,555-0016,2023-02-05,dairy,yes,no,no,jennifer_spoon;linda_table
-17,jennifer_spoon,555-0017,2023-03-30,soy,yes,no,no,robert_plate;william_chef
-18,william_chef,555-0018,2023-05-15,tree nuts,yes,no,no,linda_table;jennifer_spoon
-19,linda_table,555-0019,2023-01-12,fish,yes,no,no,william_chef;robert_plate
+2,john_eats,555-0002,2023-02-20,peanuts,yes,no,no,6;5
+3,maria_gourmet,555-0003,2023-03-10,gluten,yes,no,no,4;7
+4,chef_bob,555-0004,2023-01-05,shellfish,yes,no,no,3;10
+5,sarah_tasty,555-0005,2023-04-12,none,no,no,no,8;2
+6,mike_meals,555-0006,2023-02-28,dairy,yes,no,no,2;9
+7,lisa_food,555-0007,2023-03-22,soy,yes,no,no,5;3
+8,tom_diner,555-0008,2023-05-01,tree nuts,yes,no,no,9;12
+9,emily_bites,555-0009,2023-01-30,fish,yes,no,no,8;6
+10,david_cuisine,555-0010,2023-04-08,eggs,yes,no,no,11;4
+11,rachel_eats,555-0011,2023-02-14,none,no,no,no,10;15
+12,kevin_taste,555-0012,2023-03-18,peanuts,yes,no,no,13;8
+13,sophia_flavors,555-0013,2023-05-10,gluten,yes,no,no,12;14
+14,james_fork,555-0014,2023-01-20,shellfish,yes,no,no,15;13
+15,anna_dish,555-0015,2023-04-25,none,no,no,no,14;11
+16,robert_plate,555-0016,2023-02-05,dairy,yes,no,no,17;19
+17,jennifer_spoon,555-0017,2023-03-30,soy,yes,no,no,16;18
+18,william_chef,555-0018,2023-05-15,tree nuts,yes,no,no,19;17
+19,linda_table,555-0019,2023-01-12,fish,yes,no,no,18;16
