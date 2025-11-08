@@ -37,6 +37,7 @@ def login_page():
     st.title("📱 Login")
 
     number = st.text_input("Phone Number")
+    st.session_state.number = number
 
     if st.button("Login"):
         user_row = users[users["phonenumber"].astype(str) == number]
@@ -112,7 +113,7 @@ def setup_page ():
     # User Information
     st.header("Personal Details")
     username = st.text_input("Username")
-    phone_number = st.text_input("Phone Number", help="Format: XXX-XXXX")
+    phone_number = st.text_input("Phone Number",value=st.session_state.number or "", help="Format: XXX-XXXX")
     
     # Dietary Preferences
     st.header("Dietary Preferences")
