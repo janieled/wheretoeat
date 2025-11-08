@@ -53,39 +53,39 @@ def login_page():
             st.session_state.page = "main"
             st.rerun()
 
-# --- Setup page ---
-def setup_page():
-    st.title("🪄 Account Setup")
 
-    name = st.text_input("Your Name")
-    password = st.text_input("Create Password", type="password")
+def save_user_preferences(user_data):
+    """Save user preferences to CSV."""
+    
+    # Check if username already exists
+    if user_data['username'] in df['username'].values:
+        st.error("Username already exists. Please choose a different username.")
+        return False
+    
+    # Append new user
+    with open('users.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(user_data.values())
+    
+    return True
 
-    # if st.button("Save and Continue"):
-    #     new_user = pd.DataFrame({
-    #         "number": [st.session_state.number],
-    #         "password": [password],
-    #         "name": [name],
-    #         "role": ["user"]
-    #     })
-    #     # append to CSV
-    #     new_user.to_csv("users.csv", mode="a", header=False, index=False)
-    #     st.success("Account created successfully! Please log in.")
-    st.session_state.page = "login"
-    st.rerun()
-
+    
 
 def load_users_csv():
-    """Load existing users data or create a new CSV if it doesn't exist."""
+    "Load existing users data or create a new CSV if it doesn’t exist."
     if not os.path.exists('users.csv'):
-        # Create the CSV with headers if it doesn't exist
+        # Create the CSV with headers if it doesn’t exist
         with open('users.csv', 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['user_id', 'username', 'phonenumber', 'joined_date', 
+            writer.writerow(['user_id', 'username', 'phonenumber', 'joined_date',
                              'allergies', 'alcohol', 'vegetarian', 'vegan', 'friend'])
-    
     return pd.read_csv('users.csv')
 
- def save_user_preferences(user_data):
+def get_next_user_id(df):
+    "Generate the next user ID."
+    return df['user_id'].max() + 1 if not df.empty else 1
+
+def save_user_preferences(user_data):
     """Save user preferences to CSV."""
     # Load existing users
     df = load_users_csv()
@@ -102,8 +102,7 @@ def load_users_csv():
     
     return True
 
-def setup_page    
-():
+def setup_page ():
     st.title("Restaurant Preferences Profile")
     
     # User Information
@@ -148,8 +147,7 @@ def setup_page
             return
         
         # Prepare user data
-        users_df = load_users_csv()
-        user_id = get_next_user_id(users_df)
+        user_id = get_next_user_id(users)
         
         user_data = {
             'user_id': user_id,
@@ -750,6 +748,9 @@ def show_combined_recommendation(loader, recommender):
 #     main()
 
 if not st.session_state.logged_in:
-    login_page()
+    if st.session_state.page == "login":
+        login_page()
+    elif st.session_state.page == "setup":
+        setup_page()
 else:
     main()
