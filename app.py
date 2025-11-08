@@ -13,6 +13,8 @@ import os
 import plotly.graph_objects as go
 from src.data_loader import DataLoader
 from src.recommender import RestaurantRecommender
+import random
+from datetime import datetime, timedelta
 
 # Page configuration
 st.set_page_config(
@@ -378,45 +380,19 @@ def get_recommender(_loader):
 
 
 def display_restaurant_card(restaurant, show_predicted_rating=False):
-    """Display a restaurant card with details - mobile optimized."""
+    """Display a restaurant card with details - single column layout."""
     with st.container():
+
+        points = int(restaurant['points']) if pd.notna(restaurant['points']) else 0
         st.markdown(f"""
-            <div class="restaurant-card">
-                <h3 style="margin-top: 0;">🍽️ {restaurant['name']}</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Mobile-first: Single column on small screens, two columns on larger
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            st.markdown(f"""
+        <div class="restaurant-card">
+            <h3 style="margin-top: 0;">🍽️ {restaurant['name']} ({points} points)</h3>
             <div style="line-height: 1.6;">
-                <strong>Cuisine:</strong> {restaurant['cuisine']}<br>
-                <strong>Location:</strong> {restaurant['location']}<br>
-                <strong>Price Range:</strong> {restaurant['price_range']}<br>
-                <strong>Vibe:</strong> {restaurant['vibe']}<br>
-                <strong>Kid Friendly:</strong> {'Yes' if restaurant['kid_friendly'] == 'Yes' else 'No'}<br>
-                <strong>Dog Friendly:</strong> {'Yes' if restaurant['dog_friendly'] == 'Yes' else 'No'}<br>
-                <strong>Outdoor Sitting:</strong> {'Yes' if restaurant['outdoor_sitting'] == 'Yes' else 'No'}<br>
-                <strong>Happy Hour:</strong> {'Yes' if restaurant['happy_hour'] == 'Yes' else 'No'}<br>
-                <strong>Opening Hours:</strong><br>
-                - Monday: {restaurant['Monday_opening']} - {restaurant['Monday_closing']}<br>
-                - Tuesday: {restaurant['Tuesday_opening']} - {restaurant['Tuesday_closing']}<br>
-                - Wednesday: {restaurant['Wednesday_opening']} - {restaurant['Wednesday_closing']}<br>
-                - Thursday: {restaurant['Thursday_opening']} - {restaurant['Thursday_closing']}<br>
-                - Friday: {restaurant['Friday_opening']} - {restaurant['Friday_closing']}<br>
-                - Saturday: {restaurant['Saturday_opening']} - {restaurant['Saturday_closing']}<br>
-                - Sunday: {restaurant['Sunday_opening']} - {restaurant['Sunday_closing']}
+            {', '.join(restaurant['vibes'])} | {restaurant['cuisine']} | {restaurant['location']} | {restaurant['price_range']}
             </div>
-            """, unsafe_allow_html=True)
-        # Show predicted rating if available
-        if show_predicted_rating:
-            if 'predicted_rating' in restaurant:
-                st.info(f"🎯 Predicted for you: {restaurant['predicted_rating']:.1f} ⭐")
-            elif 'hybrid_score' in restaurant:
-                st.info(f"🎯 Match score: {restaurant['hybrid_score']:.2f}")
-        
-        st.divider()
+        </div>
+        """, unsafe_allow_html=True)
+
 
 
 def main():
@@ -432,50 +408,61 @@ def main():
 
 # Combined: For You / Group Recommendation Page
 def show_combined_recommendation(loader, recommender):
-    st.title("👥 For You / Group Recommendation")
-    st.markdown("Get recommendations for yourself or with friends!")
+    st.title("See you soon!")
 
     users_df = loader.load_users()
-    user_options = users_df[['user_id', 'username']].apply(lambda row: f"{row['username']} (ID: {row['user_id']})", axis=1).tolist()
     # Automatically select the logged-in user
-    selected_user = f"{users_df.loc[users_df['phonenumber'] == st.session_state.number, 'username'].values[0]} (ID: {users_df.loc[users_df['phonenumber'] == st.session_state.number, 'user_id'].values[0]})"
-    st.write(f"**Logged in as:** {selected_user}")
-
-    # Option to add friends
-    add_friends = st.checkbox("Add friends?", value=False)
-    selected_friends = []
-    if add_friends:
-        friend_options = [u for u in user_options if u != selected_user]
-        selected_friends = st.multiselect("What friends are coming with you?", friend_options, help="Select your friends")
+    current_user_row = users_df.loc[users_df['phonenumber'] == st.session_state.number]
+    selected_user = current_user_row['username'].values[0]
+    current_user_id = current_user_row['user_id'].values[0]
+    st.write(f"Hey, {selected_user}!")
+    st.divider()
 
     # Vibe selection
     restaurants_df = loader.load_restaurants()
-    # Extract all unique vibes (split by semicolon)
-    all_vibes = set()
-    for vlist in restaurants_df['vibe'].dropna():
-        for v in vlist.split(';'):
-            all_vibes.add(v.strip())
-    vibes = sorted(all_vibes)
+    # Only include vibes that have at least one restaurant
+    all_vibes = restaurants_df['vibes'].explode().dropna()
+    vibes = sorted([v for v in all_vibes.unique().tolist() if len(restaurants_df[restaurants_df['vibes'].apply(lambda x: v in x)]) > 0])
     selected_vibes = st.multiselect("What's the vibe?", vibes, help="Choose one or more vibes for your outing")
+    st.divider()
+    
+    # Option to add friends - only show user's actual friends
+    friend_ids_str = current_user_row['friend'].values[0]
+    if pd.notna(friend_ids_str) and friend_ids_str:
+        friend_ids = [int(fid.strip()) for fid in str(friend_ids_str).split(';')]
+        friend_options = users_df[users_df['user_id'].isin(friend_ids)]['username'].tolist()
+    else:
+        friend_options = []
+    
+    selected_friends = st.multiselect("Are you bringing friends?", friend_options, help="Select your friends")
+    st.divider()
 
     # Date/time selection
     selected_date = st.date_input("Date", help="Pick a date")
-    selected_time = st.time_input("Time", help="Pick a time")
+    # Calculate the next half hour from now
+    now = datetime.now()
+    next_half_hour = (now + timedelta(minutes=30)).replace(second=0, microsecond=0)
+    next_half_hour = next_half_hour.replace(minute=(next_half_hour.minute // 30) * 30)
 
-    st.markdown("---")
-    st.write(f"**User:** {selected_user}")
-    st.write(f"**Friends:** {', '.join(selected_friends) if selected_friends else 'None selected'}")
-    st.write(f"**Vibe(s):** {', '.join(selected_vibes) if selected_vibes else 'None selected'}")
-    st.write(f"**Date/Time:** {selected_date} {selected_time}")
+    selected_time = st.time_input("Time", value=next_half_hour.time(), help="Pick a time")
+
+    st.divider()
 
     if st.button("Show Recommendations"):
         st.subheader("🎯 Recommendations")
         
-        with st.spinner("Finding restaurants..."):
+        # Get friend IDs from selected friend names
+        friend_user_ids = []
+        if selected_friends:
+            friend_user_ids = users_df[users_df['username'].isin(selected_friends)]['user_id'].tolist()
+        
+        with st.spinner("Will we see you soon?"):
             recommendations = recommender.recommend_by_vibe_and_time(
                 vibes=selected_vibes,
+                user_id=current_user_id,
+                friend_ids=friend_user_ids if friend_user_ids else None,
                 selected_time=selected_time,
-                n=5
+                n=3
             )
         
         if len(recommendations) > 0:
