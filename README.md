@@ -141,7 +141,6 @@ The app will open in your default browser at `http://localhost:8501`
 - `location`: Restaurant location
 - `price_range`: Price category ($, $$, $$$, $$$$)
 - `avg_rating`: Average rating (1-5)
-- `num_reviews`: Total number of reviews
 
 ### users.csv
 - `user_id`: Unique identifier

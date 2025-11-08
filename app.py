@@ -344,11 +344,27 @@ def display_restaurant_card(restaurant, show_predicted_rating=False):
         
         # Mobile-first: Single column on small screens, two columns on larger
         col1, col2 = st.columns([2, 1])
-        
         with col1:
-            st.write(f"**{restaurant['cuisine']}** • {restaurant['location']}")
-            st.write(f"💰 {restaurant['price_range']}")
-                    
+            st.markdown(f"""
+            <div style="line-height: 1.6;">
+                <strong>Cuisine:</strong> {restaurant['cuisine']}<br>
+                <strong>Location:</strong> {restaurant['location']}<br>
+                <strong>Price Range:</strong> {restaurant['price_range']}<br>
+                <strong>Vibe:</strong> {restaurant['vibe']}<br>
+                <strong>Kid Friendly:</strong> {'Yes' if restaurant['kid_friendly'] == 'Yes' else 'No'}<br>
+                <strong>Dog Friendly:</strong> {'Yes' if restaurant['dog_friendly'] == 'Yes' else 'No'}<br>
+                <strong>Outdoor Sitting:</strong> {'Yes' if restaurant['outdoor_sitting'] == 'Yes' else 'No'}<br>
+                <strong>Happy Hour:</strong> {'Yes' if restaurant['happy_hour'] == 'Yes' else 'No'}<br>
+                <strong>Opening Hours:</strong><br>
+                - Monday: {restaurant['Monday_opening']} - {restaurant['Monday_closing']}<br>
+                - Tuesday: {restaurant['Tuesday_opening']} - {restaurant['Tuesday_closing']}<br>
+                - Wednesday: {restaurant['Wednesday_opening']} - {restaurant['Wednesday_closing']}<br>
+                - Thursday: {restaurant['Thursday_opening']} - {restaurant['Thursday_closing']}<br>
+                - Friday: {restaurant['Friday_opening']} - {restaurant['Friday_closing']}<br>
+                - Saturday: {restaurant['Saturday_opening']} - {restaurant['Saturday_closing']}<br>
+                - Sunday: {restaurant['Sunday_opening']} - {restaurant['Sunday_closing']}
+            </div>
+            """, unsafe_allow_html=True)
         # Show predicted rating if available
         if show_predicted_rating:
             if 'predicted_rating' in restaurant:
@@ -359,291 +375,14 @@ def display_restaurant_card(restaurant, show_predicted_rating=False):
         st.divider()
 
 
-def show_home_page(loader, recommender):
-    """Display the home page with top restaurants."""
-    st.title("🍽️ WhereToEat")
-    st.markdown("Discover your next favorite restaurant!")
-    
-    # Dataset statistics - mobile optimized (2x2 grid on mobile, 4 columns on desktop)
-    stats = loader.get_statistics()
-    
-    # Create 2 rows of 2 columns for mobile, will expand to 4 on desktop
-    row1_col1, row1_col2 = st.columns(2)
-    row2_col1, row2_col2 = st.columns(2)
-    
-    with row1_col1:
-        st.metric("🍽️ Restaurants", stats['total_restaurants'])
-    with row2_col1:
-        st.metric("👥 Users", stats['total_users'])
-    
-    st.markdown("---")
-    
-    # Top rated restaurants
-    st.subheader("🌟 Top Rated Restaurants")
-    
-    # Stack controls vertically on mobile for better UX
-    n_restaurants = st.slider("Number of Restaurants", 5, 20, 10,
-                             help="How many restaurants to show")
-    
-    
-    for _, restaurant in top_restaurants.iterrows():
-        display_restaurant_card(restaurant)
-    
-    # Visualizations - stack vertically on mobile
-    st.markdown("---")
-    st.subheader("📊 Dataset Insights")
-    
-    # Cuisine distributionS
-    restaurants_df = loader.load_restaurants()
-    cuisine_counts = restaurants_df['cuisine'].value_counts()
-    fig_cuisine = px.pie(
-        values=cuisine_counts.values,
-        names=cuisine_counts.index,
-        title="Restaurants by Cuisine"
-    )
-    fig_cuisine.update_layout(height=300)  # Optimize height for mobile
-    st.plotly_chart(fig_cuisine, use_container_width=True)
-    
-    # Location distribution
-    location_counts = restaurants_df['location'].value_counts()
-    fig_location = px.bar(
-        x=location_counts.index,
-        y=location_counts.values,
-        title="Restaurants by Location",
-        labels={'x': 'Location', 'y': 'Count'}
-    )
-    fig_location.update_layout(height=300)  # Optimize height for mobile
-    st.plotly_chart(fig_location, use_container_width=True)
-
-
-def show_personalized_recommendations(loader, recommender):
-    """Display personalized recommendations page."""
-    st.title("👤 Personalized")
-    st.markdown("Get recommendations based on your taste!")
-    
-    # User selection - stack vertically on mobile for better UX
-    users_df = loader.load_users()
-    
-    selected_user = st.selectbox(
-        "Select User",
-        options=users_df['user_id'].tolist(),
-        format_func=lambda x: f"User {x} - {users_df[users_df['user_id']==x]['username'].values[0]}",
-        help="Choose a user profile to get personalized recommendations"
-    )
-    
-    recommendation_method = st.selectbox(
-        "Recommendation Method",
-        ["Hybrid", "User-based CF", "Item-based CF"],
-        help="Hybrid combines multiple recommendation techniques"
-    )
-    
-    n_recommendations = st.slider("Number of Recommendations", 5, 20, 10,
-                                 help="How many recommendations to generate")
-    
-    # Display user's past reviews
-    with st.expander("📝 Your Past Reviews"):
-        user_reviews = loader.get_reviews_by_user(selected_user)
-        if len(user_reviews) > 0:
-            user_reviews_merged = user_reviews.merge(
-                loader.load_restaurants(),
-                on='restaurant_id'
-            ).sort_values('review_date', ascending=False)
-            
-            for _, review in user_reviews_merged.head(5).iterrows():
-                st.write(f"**{review['name']}** - {review['rating']} ⭐ - {review['review_date'].strftime('%Y-%m-%d')}")
-                if review['comment']:
-                    st.caption(f"_{review['comment']}_")
-        else:
-            st.info("No past reviews found.")
-    
-    st.markdown("---")
-    st.subheader("🎯 Recommended for You")
-    
-    # Generate recommendations
-    with st.spinner("Generating recommendations..."):
-        if recommendation_method == "User-based CF":
-            recommendations = recommender.recommend_collaborative_user_based(
-                user_id=selected_user,
-                n=n_recommendations
-            )
-        elif recommendation_method == "Item-based CF":
-            recommendations = recommender.recommend_collaborative_item_based(
-                user_id=selected_user,
-                n=n_recommendations
-            )
-        else:  # Hybrid
-            recommendations = recommender.recommend_hybrid(
-                user_id=selected_user,
-                n=n_recommendations
-            )
-    
-    if len(recommendations) > 0:
-        for _, restaurant in recommendations.iterrows():
-            display_restaurant_card(restaurant, show_predicted_rating=True)
-    else:
-        st.warning("No recommendations available. Try a different method!")
-
-
-def show_search_filter_page(loader, recommender):
-    """Display search and filter page."""
-    st.title("🔍 Search & Filter")
-    st.markdown("Find restaurants by your preferences!")
-    
-    # Filters - stack vertically on mobile for better touch interaction
-    cuisines = ["All"] + loader.get_unique_cuisines()
-    selected_cuisine = st.selectbox("Cuisine", cuisines, 
-                                   help="Filter by cuisine type")
-    
-    locations = ["All"] + loader.get_unique_locations()
-    selected_location = st.selectbox("Location", locations,
-                                    help="Filter by location")
-    
-    price_ranges = ["All"] + loader.get_unique_price_ranges()
-    selected_price = st.selectbox("Price Range", price_ranges,
-                                 help="Filter by price range")
-    
-    min_rating = st.slider("Minimum Rating", 0.0, 5.0, 3.0, 0.1,
-                          help="Show restaurants with at least this rating")
-    
-    # Apply filters
-    filtered_restaurants = loader.filter_restaurants(
-        cuisine=None if selected_cuisine == "All" else selected_cuisine,
-        location=None if selected_location == "All" else selected_location,
-        price_range=None if selected_price == "All" else selected_price,
-        min_rating=min_rating
-    )
-    
-    st.markdown("---")
-    st.subheader(f"Found {len(filtered_restaurants)} restaurants")
-    
-    if len(filtered_restaurants) > 0:
-        # Sort options
-        sort_by = st.selectbox(
-            "Sort by",
-            ["Average Rating", "Number of Reviews", "Name"]
-        )
-        
-        if sort_by == "Average Rating":
-            filtered_restaurants = filtered_restaurants.sort_values("avg_rating", ascending=False)
-        elif sort_by == "Number of Reviews":
-            filtered_restaurants = filtered_restaurants.sort_values("num_reviews", ascending=False)
-        else:
-            filtered_restaurants = filtered_restaurants.sort_values("name")
-        
-        for _, restaurant in filtered_restaurants.iterrows():
-            display_restaurant_card(restaurant)
-    else:
-        st.info("No restaurants match your criteria. Try adjusting the filters!")
-
-
-def show_restaurant_details(loader, recommender):
-    """Display detailed restaurant information."""
-    st.title("🏪 Details")
-    st.markdown("Explore restaurants and find similar options!")
-    
-    # Restaurant selection
-    restaurants_df = loader.load_restaurants()
-    
-    selected_restaurant_name = st.selectbox(
-        "Select Restaurant",
-        options=restaurants_df['name'].tolist(),
-        help="Choose a restaurant to see details"
-    )
-    
-    restaurant_id = restaurants_df[
-        restaurants_df['name'] == selected_restaurant_name
-    ]['restaurant_id'].values[0]
-    
-    restaurant = loader.get_restaurant_by_id(restaurant_id)
-    
-    # Display restaurant details - mobile optimized
-    st.markdown("---")
-    
-    st.header(f"🍽️ {restaurant['name']}")
-    
-    # Stack info vertically for mobile
-    st.write(f"**Cuisine:** {restaurant['cuisine']}")
-    st.write(f"**Location:** {restaurant['location']}")
-    st.write(f"**Price:** {restaurant['price_range']}")
-    
-    # Metrics in row
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("⭐ Rating", f"{restaurant['avg_rating']:.1f}")
-    with col2:
-        st.metric("📝 Reviews", restaurant['num_reviews'])
-    
-    # Reviews
-    st.markdown("---")
-    st.subheader("📝 Recent Reviews")
-    
-    reviews = loader.get_reviews_by_restaurant(restaurant_id)
-    reviews_merged = reviews.merge(
-        loader.load_users(),
-        on='user_id'
-    ).sort_values('review_date', ascending=False)
-    
-    if len(reviews_merged) > 0:
-        for _, review in reviews_merged.head(10).iterrows():
-            with st.container():
-                col1, col2 = st.columns([4, 1])
-                with col1:
-                    st.write(f"**{review['username']}** - {review['review_date'].strftime('%Y-%m-%d')}")
-                    if review['comment']:
-                        st.write(review['comment'])
-                with col2:
-                    st.write(f"{review['rating']} ⭐")
-                st.divider()
-    else:
-        st.info("No reviews yet.")
-    
-    # Similar restaurants
-    st.markdown("---")
-    st.subheader("🔄 Similar Restaurants")
-    
-    similar_restaurants = recommender.get_similar_restaurants(restaurant_id, n=5)
-    
-    if len(similar_restaurants) > 0:
-        for _, sim_restaurant in similar_restaurants.iterrows():
-            with st.container():
-                # Mobile-optimized card layout
-                st.write(f"**{sim_restaurant['name']}** - {sim_restaurant['avg_rating']:.1f} ⭐")
-                st.caption(f"{sim_restaurant['cuisine']} • {sim_restaurant['location']} • {sim_restaurant['price_range']}")
-                st.divider()
-    else:
-        st.info("No similar restaurants found.")
-
-
 def main():
     """Main application."""
     # Load data
     loader = load_data()
     recommender = get_recommender(loader)
     
-    # Sidebar navigation - optimized for mobile
-    with st.sidebar:
-        st.title("🍽️ WhereToEat")
-        page = st.radio(
-            "Navigate",
-            ["🏠 Home", "� For You/Group", "🔍 Search", "🏪 Details"],
-            label_visibility="collapsed"
-        )
-        st.markdown("---")
-        with st.expander("ℹ️ About"):
-            st.write(
-                "WhereToEat helps you discover great restaurants using "
-                "collaborative filtering and ML recommendations."
-            )
-
-    # Display selected page
-    if page == "🏠 Home":
-        show_home_page(loader, recommender)
-    elif page == "� For You/Group":
-        show_combined_recommendation(loader, recommender)
-    elif page == "🔍 Search":
-        show_search_filter_page(loader, recommender)
-    elif page == "🏪 Details":
-        show_restaurant_details(loader, recommender)
+    # Show the combined recommendation page
+    show_combined_recommendation(loader, recommender)
 
 
 
@@ -654,7 +393,9 @@ def show_combined_recommendation(loader, recommender):
 
     users_df = loader.load_users()
     user_options = users_df[['user_id', 'username']].apply(lambda row: f"{row['username']} (ID: {row['user_id']})", axis=1).tolist()
-    selected_user = st.selectbox("Who is going?", user_options, help="Select yourself")
+    # Automatically select the logged-in user
+    selected_user = f"{users_df.loc[users_df['phonenumber'] == st.session_state.number, 'username'].values[0]} (ID: {users_df.loc[users_df['phonenumber'] == st.session_state.number, 'user_id'].values[0]})"
+    st.write(f"**Logged in as:** {selected_user}")
 
     # Option to add friends
     add_friends = st.checkbox("Add friends?", value=False)
@@ -684,58 +425,20 @@ def show_combined_recommendation(loader, recommender):
     st.write(f"**Date/Time:** {selected_date} {selected_time}")
 
     if st.button("Show Recommendations"):
-        # Parse user_id from selected_user string
-        user_id = int(selected_user.split("ID: ")[-1].replace(")", ""))
-        friend_ids = [int(f.split("ID: ")[-1].replace(")", "")) for f in selected_friends]
-
-        if not add_friends or not selected_friends:
-            st.subheader("🎯 Recommended for You")
-            n_recommendations = st.slider("Number of Recommendations", 5, 20, 10, help="How many recommendations to generate")
-            recommendation_method = st.selectbox(
-                "Recommendation Method",
-                ["Hybrid", "User-based CF", "Item-based CF"],
-                help="Hybrid combines multiple recommendation techniques"
+        st.subheader("🎯 Recommendations")
+        
+        with st.spinner("Finding restaurants..."):
+            recommendations = recommender.recommend_by_vibe_and_time(
+                vibes=selected_vibes,
+                selected_time=selected_time,
+                n=5
             )
-            with st.spinner("Generating recommendations..."):
-                if recommendation_method == "User-based CF":
-                    recommendations = recommender.recommend_collaborative_user_based(
-                        user_id=user_id,
-                        n=n_recommendations
-                    )
-                elif recommendation_method == "Item-based CF":
-                    recommendations = recommender.recommend_collabosrative_item_based(
-                        user_id=user_id,
-                        n=n_recommendations
-                    )
-                else:  # Hybrid
-                    recommendations = recommender.recommend_hybrid(
-                        user_id=user_id,
-                        n=n_recommendations
-                    )
-            if len(recommendations) > 0:
-                for _, restaurant in recommendations.iterrows():
-                    display_restaurant_card(restaurant, show_predicted_rating=True)
-            else:
-                st.warning("No recommendations available. Try a different method!")
+        
+        if len(recommendations) > 0:
+            for _, restaurant in recommendations.iterrows():
+                display_restaurant_card(restaurant)
         else:
-            st.subheader("🎯 Group Recommendations")
-            n_recommendations = st.slider("Number of Group Recommendations", 5, 20, 10, help="How many group recommendations to generate")
-            restaurants_df = loader.load_restaurants()
-            if selected_vibes:
-                # Match if any selected vibe is present in the restaurant's vibe list
-                def vibe_match(row):
-                    if pd.isna(row['vibe']):
-                        return False
-                    vibes_in_row = [v.strip() for v in row['vibe'].split(';')]
-                    return any(v in vibes_in_row for v in selected_vibes)
-                group_recs = restaurants_df[restaurants_df.apply(vibe_match, axis=1)].head(n_recommendations)
-            else:
-                group_recs = restaurants_df.head(0)
-            if len(group_recs) > 0:
-                for _, restaurant in group_recs.iterrows():
-                    display_restaurant_card(restaurant)
-            else:
-                st.warning("No group recommendations available for the selected vibe(s).")
+            st.warning("No restaurants found for the selected vibe(s). Try different vibes!")
 
     if st.button("Logout"):
         st.session_state.logged_in = False
